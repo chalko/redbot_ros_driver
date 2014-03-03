@@ -16,15 +16,16 @@ Topics
 Listens for
 ====
 
-lmotor_cmd (Float32)
-lmotor_cmd (Float32)
+ * lmotor_cmd (Float32)
+ * rmotor_cmd (Float32)
 
 
 
 Publishes 
 ====
-lwheel (std_msgs/Int16)
-rwheel (std_msgs/Int16)
+
+* lwheel (std_msgs/Int16)
+* rwheel (std_msgs/Int16)
 
 
 
