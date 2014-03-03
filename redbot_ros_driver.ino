@@ -33,7 +33,7 @@ RedBotMotor motors;
 void motorCB( const std_msgs::Bool& motorOn){
   if (motorOn.data && !bumped)
   {
-    motors.drive(100);
+    motors.drive(200);
 
   }
   else motors.brake();
