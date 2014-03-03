@@ -4,6 +4,10 @@ ROS driver for the sparkfun redbot, arduino based, robot.
 
 
 
+Designed to provide input to 
+http://wiki.ros.org/differential_drive
+
+
 
 
 Topics
@@ -12,12 +16,17 @@ Topics
 Listens for
 ====
 
-motor
+ * lmotor_cmd (Float32)
+ * rmotor_cmd (Float32)
 
 
 
 Publishes 
-
 ====
+
+* lwheel (std_msgs/Int32)
+* rwheel (std_msgs/Int32)
+
+
 
 bumper
