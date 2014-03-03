@@ -24,8 +24,8 @@ Listens for
 Publishes 
 ====
 
-* lwheel (std_msgs/Int16)
-* rwheel (std_msgs/Int16)
+* lwheel (std_msgs/Int32)
+* rwheel (std_msgs/Int32)
 
 
 
