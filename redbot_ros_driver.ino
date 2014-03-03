@@ -1,10 +1,10 @@
 #include <ros.h>
 #include <std_msgs/Bool.h>
-#include <std_msgs/Int16.h>
+#include <std_msgs/Int32.h>
 #include <ArduinoHardware.h>
 
 #include <RedBot.h>
-#include <RedBotSoftwareSerial.h>
+//#include <RedBotSoftwareSerial.h>
 
 
 // Flag for bumpers to send the signal that something's wrong and the motors should
@@ -46,7 +46,7 @@ ros::Subscriber<std_msgs::Bool> sub("motor", &motorCB );
 // Instantiate our encoder. 
 RedBotEncoder encoder = RedBotEncoder(A2, A3); // left, right
 
-std_msgs::Int16 encoder_msg;
+std_msgs::Int32 encoder_msg;
 ros::Publisher lwheel_pub("lwheel", &encoder_msg);
 ros::Publisher rwheel_pub("rwheel", &encoder_msg);
 
@@ -77,6 +77,8 @@ void setup() {
 }
 
 void loop() { 
+  static unsigned long loopStart = millis();
+
   // Wait for the button to be pressed, then turn off the "bumped" flag
   //  so the motors can run. Also, clear the encoders, so we can track
   //  our motion.
@@ -87,13 +89,15 @@ void loop() {
     bumper.publish(&pushed_msg);
 
   } 
-  
-  // TODO(chalko) how often ?
-  encoder_msg.data = encoder.getTicks(LEFT);
-  lwheel_pub.publish(&encoder_msg);
-  encoder_msg.data = encoder.getTicks(RIGHT);
-  rwheel_pub.publish(&encoder_msg);
 
+  // TODO(chalko) how often ?
+  if(loopStart +  100 <  millis()) {
+    loopStart = millis();
+    encoder_msg.data = encoder.getTicks(LEFT);
+    lwheel_pub.publish(&encoder_msg);
+    encoder_msg.data = encoder.getTicks(RIGHT)+7;
+    rwheel_pub.publish(&encoder_msg);
+  }
   nh.spinOnce();
 }
 
@@ -108,10 +112,5 @@ void bump()
   bumper.publish(&pushed_msg);
   bumped = true;
 }
-
-
-
-
-
 
 
