@@ -1,10 +1,10 @@
 #include <ros.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Int16.h>
 #include <ArduinoHardware.h>
 
 #include <RedBot.h>
 #include <RedBotSoftwareSerial.h>
-
 
 
 // Flag for bumpers to send the signal that something's wrong and the motors should
@@ -16,13 +16,11 @@ volatile boolean bumped = true;
 ros::NodeHandle nh;
 
 
-
 // Create an alias for the onboard pushbutton.
 #define BUTTON_PIN 12
 
 // Create an alias for the onboard LED.
 #define LED_PIN 13
-
 
 
 ///////////////
@@ -44,6 +42,14 @@ void motorCB( const std_msgs::Bool& motorOn){
 ros::Subscriber<std_msgs::Bool> sub("motor", &motorCB );
 
 
+/////  Encoder
+// Instantiate our encoder. 
+RedBotEncoder encoder = RedBotEncoder(A2, A3); // left, right
+
+std_msgs::Int16 encoder_msg;
+ros::Publisher lwheel_pub("lwheel", &encoder_msg);
+ros::Publisher rwheel_pub("rwheel", &encoder_msg);
+
 
 // Instantiate a couple of whisker switches. Call bump() when one of them
 //  hits something. There's no stopping you having a different function for
@@ -51,21 +57,16 @@ ros::Subscriber<std_msgs::Bool> sub("motor", &motorCB );
 RedBotBumper lBumper(10, &bump);
 RedBotBumper rBumper(11, &bump);
 
-
-
 std_msgs::Bool pushed_msg;
 ros::Publisher bumper("bumper", &pushed_msg);
 
 
-
-
-
 void setup() {
-  Serial.begin(57600);
-  Serial.println("Setup");
   nh.initNode();
   nh.advertise(bumper);
   nh.subscribe(sub);
+  nh.advertise(lwheel_pub);
+  nh.advertise(rwheel_pub);
 
   // Set up our two built-in IO devices- the button and the LED.
   pinMode(BUTTON_PIN, INPUT_PULLUP);
@@ -86,6 +87,12 @@ void loop() {
     bumper.publish(&pushed_msg);
 
   } 
+  
+  // TODO(chalko) how often ?
+  encoder_msg.data = encoder.getTicks(LEFT);
+  lwheel_pub.publish(&encoder_msg);
+  encoder_msg.data = encoder.getTicks(RIGHT);
+  rwheel_pub.publish(&encoder_msg);
 
   nh.spinOnce();
 }
@@ -96,7 +103,6 @@ void loop() {
 //  tell the user what's up.
 void bump()
 {
-  Serial.println("Bump");
   motors.brake();
   pushed_msg.data = true;
   bumper.publish(&pushed_msg);
